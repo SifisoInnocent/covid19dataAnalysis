@@ -1,0 +1,61 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set(style="whitegrid")
+
+def main():
+    url = "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+    countries = ['United States', 'India', 'Brazil']
+
+    try:
+        df = pd.read_csv(url, parse_dates=['date'])
+        print("Dataset loaded successfully!")
+    except Exception as e:
+        print(f"Failed to load dataset: {e}")
+        return
+
+    df_filtered = df[df['location'].isin(countries)].copy()
+    df_filtered['new_cases'] = df_filtered['new_cases'].fillna(0)
+    df_filtered['new_deaths'] = df_filtered['new_deaths'].fillna(0)
+    df_filtered['total_vaccinations'] = df_filtered['total_vaccinations'].fillna(method='ffill')
+
+    print("\nDataset info:")
+    print(df_filtered.info())
+
+    print("\nFirst 5 rows:")
+    print(df_filtered.head())
+
+    print("\nDescriptive statistics for new cases:")
+    print(df_filtered.groupby('location')['new_cases'].describe())
+
+    # Plot new cases over time
+    plt.figure(figsize=(12,6))
+    for country in countries:
+        data = df_filtered[df_filtered['location'] == country]
+        plt.plot(data['date'], data['new_cases'], label=country)
+    plt.title('Daily New COVID-19 Cases')
+    plt.xlabel('Date')
+    plt.ylabel('New Cases')
+    plt.legend()
+    plt.show()
+
+    # Vaccination coverage bar chart
+    latest_date = df_filtered['date'].max()
+    latest_data = df_filtered[df_filtered['date'] == latest_date]
+
+    plt.figure(figsize=(8,5))
+    sns.barplot(data=latest_data, x='location', y='people_vaccinated_per_hundred')
+    plt.title(f'Vaccination Coverage (%) as of {latest_date.strftime("%Y-%m-%d")}')
+    plt.xlabel('Country')
+    plt.ylabel('People Vaccinated per 100')
+    plt.show()
+
+    # Case Fatality Rate calculation
+    df_filtered['case_fatality_rate'] = df_filtered['total_deaths'] / df_filtered['total_cases']
+    cfr_latest = df_filtered[df_filtered['date'] == latest_date][['location', 'case_fatality_rate']]
+    print("\nCase Fatality Rate by Country (latest):")
+    print(cfr_latest)
+
+if __name__ == "__main__":
+    main()
