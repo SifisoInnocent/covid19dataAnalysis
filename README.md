@@ -8,7 +8,7 @@ This project analyzes and visualizes global COVID-19 data sourced from Our World
 - Perform exploratory data analysis (EDA)  
 - Visualize trends in new cases and vaccination coverage  
 - Calculate critical indicators such as Case Fatality Rate (CFR)  
-- Present findings in a clear, reproducible Jupyter Notebook report  
+- Present findings in a clear, reproducible Jupyter Notebook report 
 
 ## Tools & Libraries Used  
 - Python 3.x  
